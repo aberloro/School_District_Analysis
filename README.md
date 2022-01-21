@@ -1,26 +1,14 @@
 # School_District_Analysis
 ## Overview
-Our client, Maria, had asked for an analysis of school performance in her district to help inform future decisions on spending, class size, and school type.  The school board has found evidence of academic dishonesty in the math and reading scores of 9th graders at Thomas High School (THS). The purose of this analysis is to clean the original data of any potentially dishonest scores and re-submit the analysis, highlighting any changes in the output after cleaning the data.
+Our client, Maria, had asked for an analysis of school performance in her district to help inform future decisions on spending, class size, and school type.  The school board has subsequently found evidence of academic dishonesty in the math and reading scores of 9th graders at Thomas High School (THS). The purose of this analysis is to clean the original data of any potentially dishonest scores and re-submit the analysis, highlighting any changes in the output after cleaning the data.
 
 ### Deliverables
- 1. Replace Thomas High School (THS) reading and math scores for the 9th graders with NaN. 
- 2. Create a District Summary that shows: 
-     - The total number of schools and students
-     - The total budget
-     - Average math and reading scores
-     - The percent of students passing math and reading
-     - The percent of overall students passing
- 4. Create a School Summary that shows the following per school:
-     - The type of school (distrct or charter)
-     - The student population
-     - The school budget and per student budget
-     - Average math and reading scores
-     - Percent of students passing math and reading
-     - Percent of overall students passing
- 5. Top 5 and bottom 5 performaing schools based on overall passing rate
- 6. Average math scores by grade level from each school
- 7. Average reading scores by grade level from each school
- 8. Average scores and percent passing by budget, by school size, and by school type
+ - Replace Thomas High School (THS) reading and math scores for the 9th graders with NaN 
+ - District Summary 
+ - School Summary
+ - Top 5 and bottom 5 performaing schools based on overall passing rate
+ - Average math and reading scores by grade level from each school
+ - Average scores and percent passing by budget, by school size, and by school type
  
 ## Results
 
@@ -51,7 +39,7 @@ The impact of the falsified data at THS was also nominal once we removed the 9th
 <img width="462" alt="School Summary" src="https://user-images.githubusercontent.com/93740725/150455328-22c758e3-2ec8-4f1c-b4a2-dae0423d3319.png">
 
 ### Impact to THS's Performance Relative to Other Schools
-Thomas High School ranked number 2 in the top five schools both before and after the falsified data was cleaned.
+Thomas High School ranked number 2 in the top five schools both before and after the falsified data was cleaned, but with a smaller margin over the number 3 school after cleaning. 
 
 <img width="877" alt="Top 5" src="https://user-images.githubusercontent.com/93740725/150458324-730decf6-0781-4a3d-815d-8759728e2ecf.png">
 
@@ -79,11 +67,12 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
          & (student_data_df["math_score"] >0),
                  "math_score"] = np.NaN
 
+<img width="344" alt="Check for NaNs" src="https://user-images.githubusercontent.com/93740725/150592945-062ac02a-ccf6-46ae-ba8e-f343f389dda7.png">
+
 #### Recalculate District Summary
      #Combine the data into a single dataset
      school_data_complete_df = pd.merge(student_data_df, school_data_df, how="left", on=["school_name", "school_name"])
-     school_data_complete_df.head()
-
+     
      #Calculate the Totals (Schools and Students)
      school_count = len(school_data_complete_df["school_name"].unique())
      student_count = school_data_complete_df["Student ID"].count()
@@ -95,7 +84,8 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
      average_reading_score = school_data_complete_df["reading_score"].mean()
      average_math_score = school_data_complete_df["math_score"].mean()
 
-     #Update the student count to remove NaN students
+     #Update the total student count to remove NaN students
+     
      #Step 1. Get the number of students that are in ninth grade at Thomas High School
      THS_9th_count = school_data_complete_df["math_score"].isnull().sum()
      #Get the total student count
@@ -114,8 +104,10 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
      #Calculate the students who passed both reading and math.
      passing_math_reading = school_data_complete_df[(school_data_complete_df["math_score"] >= 70)
                                                     & (school_data_complete_df["reading_score"] >= 70)]
+     
      #Calculate the number of students that passed both reading and math.
      overall_passing_math_reading_count = passing_math_reading["student_name"].count()
+     
      #Step 4.Calculate the overall passing percentage with new total student count.
      overall_passing_percentage = overall_passing_math_reading_count / updated_total_student_count *100
 
@@ -138,6 +130,8 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
      district_summary_df["% Passing Math"] = district_summary_df["% Passing Math"].map("{:.1f}".format)
      district_summary_df["% Passing Reading"] = district_summary_df["% Passing Reading"].map("{:.1f}".format)
      district_summary_df["% Overall Passing"] = district_summary_df["% Overall Passing"].map("{:.1f}".format)
+
+<img width="423" alt="District Summary CLEAN" src="https://user-images.githubusercontent.com/93740725/150593417-68155acc-b8a3-4dea-a363-5b5ec0a3d49a.png">
 
 #### Recalculate Per-School Summary
      #Determine the School Type
@@ -220,16 +214,13 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
      
      #Step 9. Calculate the percentage of 10th-12th grade students passing math from Thomas High School. 
      percent_THS_10to12_pass_math = THS_passing_math["student_name"].count() / THS_10to12_count *100
-     percent_THS_10to12_pass_math
-
+     
      #Step 10. Calculate the percentage of 10th-12th grade students passing reading from Thomas High School.
      percent_THS_10to12_pass_read = THS_passing_reading["student_name"].count() / THS_10to12_count *100
-     percent_THS_10to12_pass_read
-
+     
      #Step 11. Calculate the overall passing percentage of 10th-12th grade from Thomas High School. 
      percent_pass_overall_THS = THS_pass_math_read_count / THS_10to12_count *100
-     percent_pass_overall_THS
-     
+         
      # Step 12. Replace the passing math percent for Thomas High School in the per_school_summary_df.
      per_school_summary_df.loc["Thomas High School", "% Passing Math"] =  percent_THS_10to12_pass_math 
      
@@ -239,6 +230,10 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
      # Step 14. Replace the overall passing percentage for Thomas High School in the per_school_summary_df.
      per_school_summary_df.loc["Thomas High School", "% Overall Passing"] =  percent_pass_overall_THS
      
+     per_school_summary.df
+   
+<img width="424" alt="School Summary CLEAN" src="https://user-images.githubusercontent.com/93740725/150594015-1386b34a-7fc4-40e5-a859-ad77a67cdf0e.png">
+
 #### Recalculate High and Low Performaing Schools
      #Sort and show top five schools.
      top_schools = per_school_summary_df.sort_values(["% Overall Passing"], ascending=False)
@@ -247,6 +242,8 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
      #Sort and show bottom 5 schools
      bottom_schools = per_school_summary_df.sort_values(["% Overall Passing"], ascending=True)
      bottom_schools.head()
+
+<img width="424" alt="Top and Bottom CLEAN" src="https://user-images.githubusercontent.com/93740725/150594725-ab970d9f-ac1d-4e59-a464-774b28b35a39.png">
   
  #### Recalculate Math and Reading Scores by Grade
       #Create a Series of scores by grade levels using conditionals.
@@ -302,6 +299,8 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
      #Display the DataFrame.
      reading_by_grade
 
+<img width="336" alt="Scores by Grade CLEAN" src="https://user-images.githubusercontent.com/93740725/150595366-48e96bd3-228c-49b5-82b9-de6e8579cde3.png">
+
 #### Recaculate Scores by School Spending
      #Establish the spending bins and group names
      spending_bins = [0, 585, 630, 645, 675]
@@ -333,6 +332,8 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
      spending_summary_df["% Overall Passing"] = spending_summary_df["% Overall Passing"].map("{:.0f}".format)
      
      spending_summary_df
+
+<img width="397" alt="Scores by Spending CLEAN" src="https://user-images.githubusercontent.com/93740725/150595614-023f1a69-78b9-4711-b841-6e26a024a19c.png">
 
 #### Recalculate Scores by School Size
      #Establish the bins by school size.
@@ -368,6 +369,8 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
 
      size_summary_df
 
+<img width="412" alt="Scores by Size CLEAN" src="https://user-images.githubusercontent.com/93740725/150595759-d17b44c9-30f7-4c96-83a4-e07089332b4c.png">
+
 #### Recalculate Scores by School Type
      #Calculate averages by school type for the desired columns.
      type_math_scores = per_school_summary_df.groupby(["School Type"]).mean()["Average Math Score"]
@@ -393,12 +396,14 @@ Replacing THS 9th grade math and reading scores with NaN did not impact the scor
      
      type_summary_df
 
+<img width="389" alt="Scores by Type CLEAN" src="https://user-images.githubusercontent.com/93740725/150595869-813ad599-489f-45dd-9a5a-c31dc2895f32.png">
+
 ## Summary
-Cleaning the fasified data from the 9th grade at Thomas High School resulted in a slight decrease to four of its performance metrics:
+Cleaning the falsified data from the 9th grade at Thomas High School resulted in a slight decrease to four of its performance metrics at the district and per-school levels:
   1. Decrease in average math scores
      - 0.1 at the district level
      - 0.07 at the per-school level
-  2. No impact to average reading scores
+  2. Nominal impact to average reading scores
      - No change at he district level
      - 0.05 at the per-school level
   3. Decrease in the percent of students passing math
